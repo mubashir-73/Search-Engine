@@ -12,7 +12,7 @@ declare module '@fastify/postgres' {
     /**
      * The node-postgres connection pool instance
      */
-    pool: string;
+    pool: Pool;
     /**
      * Connect to the database and retrieve a client from the pool
      */
@@ -36,4 +36,8 @@ declare module 'fastify' {
   interface FastifyInstance {
     pg: import('@fastify/postgres').PostgresPluginObject;
   }
+}
+
+declare module 'HTMLElement'{
+  interface 
 }

@@ -1,16 +1,16 @@
 import Fastify from "fastify";
-import routes from "./url/routes.js"
+import urlroutes from "./url/routes.js";
 import dbConnector from "./db.js"
 import dotenv from "dotenv";
 dotenv.config();
-import { drizzle } from 'drizzle-orm/node-postgres';
+
 
 const fastify = Fastify({
   logger: true
 })
 
 fastify.register(dbConnector)
-fastify.register(routes)
+fastify.register(urlroutes)
 
 fastify.get('/', function(request, reply){
     reply.send({ hello: 'world' })
