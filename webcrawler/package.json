@@ -19,6 +19,6 @@
   "type": "module",
   "scripts": {
     "start": "node server.ts",
-    "dev": "tsx server.ts"
+    "dev": "tsx watch server.ts"
   }
 }

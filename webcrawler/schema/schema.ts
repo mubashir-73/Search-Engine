@@ -29,8 +29,6 @@ export const contentTable = pgTable("contents", {
     .references(() => urlTable.id, { onDelete: "cascade" }),
   title: varchar({ length: 255 }),
   textContent: text("text_content"),
-  metadata: text(),
-  htmlSource: text("html_source"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
@@ -39,20 +37,7 @@ export const linkTable = pgTable("links", {
   sourceUrlId: integer("source_url_id").references(() => urlTable.id, {
     onDelete: "cascade",
   }),
-  sourceUrl: varchar("source_url", { length: 255 }),
   targetUrl: varchar("target_url", { length: 255 }).notNull(),
-  anchorText: text("anchor_text"),
-  linkType: varchar("link_type", { length: 20 }).default("internal"),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-});
-
-export const searchIndexTable = pgTable("search_index", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  keyword: varchar({ length: 255 }).notNull(),
-  urlId: integer("url_id")
-    .notNull()
-    .references(() => urlTable.id, { onDelete: "cascade" }),
-  frequency: integer().notNull().default(1),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
@@ -66,4 +51,3 @@ export const metadataTable = pgTable("metadata", {
   httpStatusCode: integer("http_status_code"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
-

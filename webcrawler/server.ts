@@ -22,3 +22,6 @@ fastify.listen({port:4000},function(err,address){
         process.exit(1)
     }
 })
+
+//TODO: Follow Robot.txt file
+//TODO: Automate URL Frontier by adding links found and jumping through the links
