@@ -2,6 +2,7 @@ import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { contentTable, urlTable } from "../schema/schema.js";
 import parser from "../utils/parser.js";
 import { eq } from "drizzle-orm";
+import type { ParsedPage, ParsedLinks } from "../utils/parser.js";
 
 export function urlService(db: NodePgDatabase) {
   async function getUrl() {
@@ -18,8 +19,10 @@ export function urlService(db: NodePgDatabase) {
     };
   }
   async function insertUrlById(url: string) {
+    // fetching html
     const html = await fetch(url).then((res) => res.text());
-    const metadata = await parser(html);
+    const metadata: ParsedPage = await parser(html); //uses a parser.ts
+    // Actual Insertion service
     console.log(metadata);
     const result = await db
       .insert(urlTable)
@@ -30,11 +33,26 @@ export function urlService(db: NodePgDatabase) {
       title: metadata.title,
       textContent: metadata.description,
     });
+    // Taking care of other links in site
+    for (const link of metadata.links) {
+      const id = await db
+        .select({ url: urlTable.id })
+        .from(urlTable)
+        .where(eq(urlTable.url, link.url));
+      if (!id) {
+        const linkid = await db
+          .insert(urlTable)
+          .values({ url: link.url })
+          .returning({ insertedId: urlTable.id });
+      }
+    }
+
     return {
       status: "Insertion successfull",
       ...result,
     };
   }
+  // Deletion service
   async function deleteUrlById(urlId: number) {
     await db.delete(urlTable).where(eq(urlTable.id, urlId));
     await db.delete(contentTable).where(eq(contentTable.urlId, urlId));
