@@ -4,6 +4,7 @@ import {
   text,
   timestamp,
   varchar,
+  unique,
 } from "drizzle-orm/pg-core";
 
 export enum UrlStatus {
@@ -32,14 +33,25 @@ export const contentTable = pgTable("contents", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
-export const linkTable = pgTable("links", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  sourceUrlId: integer("source_url_id").references(() => urlTable.id, {
-    onDelete: "cascade",
-  }),
-  targetUrl: varchar("target_url", { length: 255 }).notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-});
+export const linkTable = pgTable(
+  "links",
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    sourceUrlId: integer("source_url_id").references(() => urlTable.id, {
+      onDelete: "cascade",
+    }),
+    targetUrlId: integer("target_url_id").references(() => urlTable.id, {
+      onDelete: "cascade",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  },
+  (table) => [
+    unique("Links_source_target_unique").on(
+      table.sourceUrlId,
+      table.targetUrlId,
+    ),
+  ],
+);
 
 export const metadataTable = pgTable("metadata", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),

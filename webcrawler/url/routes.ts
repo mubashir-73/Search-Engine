@@ -1,3 +1,5 @@
+//TODO: Complete refactor use crawler service and repository services now
+
 import type { FastifyInstance } from "fastify";
 import { urlService } from "./service.js";
 

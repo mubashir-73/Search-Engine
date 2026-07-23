@@ -1,8 +1,8 @@
 import { urlTable, contentTable } from "../schema/schema.js";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { eq } from "drizzle-orm";
-import parser from "../crawler/parser.js";
-import type { ParsedPage, ParsedLinks } from "../crawler/parser.js";
+import type { ParsedLinks } from "../crawler/parser.js";
+import { createLinkRepository } from "./link.repository.js";
 
 export function createUrlRepository(db: NodePgDatabase) {
   async function getUrl() {
@@ -18,39 +18,42 @@ export function createUrlRepository(db: NodePgDatabase) {
       })),
     };
   }
-  async function insertUrlById(url: string): Promise<number> {
-    // fetching html
-    const html = await fetch(url).then((res) => res.text());
-    const metadata: ParsedPage = await parser(html); //uses a parser.ts
-    // Actual Insertion service
-    console.log(metadata);
-    const result = await db
+  async function getOrCreateUrlId(url: string): Promise<number> {
+    await db
       .insert(urlTable)
       .values({ url: url })
-      .returning({ insertedId: urlTable.id });
+      .returning({ insertedId: urlTable.id })
+      .onConflictDoNothing();
+
+    const result = await db
+      .select({ id: urlTable.id })
+      .from(urlTable)
+      .where(eq(urlTable.url, url));
     if (result.length === 0) {
       throw new Error("Failed to insert URL");
     }
-
-    // Taking care of other links in site
-
-    return result[0]!.insertedId;
+    return result[0]!.id;
   }
-  async function insertDiscoveredLinks(links: ParsedLinks[], id: number) {
+  async function insertDiscoveredLinks(links: ParsedLinks[], sourceid: number) {
     for (const link of links) {
-      const id = await db
-        .select({ url: urlTable.id })
-        .from(urlTable)
-        .where(eq(urlTable.url, link.url));
-      if (id.length === 0) {
-        await insertUrlById(link.url); // just inserts no parsing/fetch for now
-      }
+      const id = await getOrCreateUrlId(link.url);
       //link connection in link.repository.ts
+      (await createLinkRepository(db)).createLink(sourceid, id);
     }
   }
+
+  async function deleteUrlById(urlId: number) {
+    await db.delete(urlTable).where(eq(urlTable.id, urlId));
+    await db.delete(contentTable).where(eq(contentTable.urlId, urlId));
+    return {
+      status: "Deletion Succesfull",
+    };
+  }
+
   return {
     getUrl,
-    insertUrlById,
+    insertUrlById: getOrCreateUrlId,
     insertDiscoveredLinks,
+    deleteUrlById,
   };
 }

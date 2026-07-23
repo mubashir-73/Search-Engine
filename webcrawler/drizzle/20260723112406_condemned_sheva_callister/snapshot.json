@@ -1,9 +1,9 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "269017a3-0335-49a2-8874-cb79002e2f78",
+  "id": "ca63f6c6-b74b-44ae-8029-85764b9387b6",
   "prevIds": [
-    "9ef06127-034f-446b-91cc-ffa94fde040d"
+    "00000000-0000-0000-0000-000000000000"
   ],
   "ddl": [
     {
@@ -140,14 +140,14 @@
       "table": "links"
     },
     {
-      "type": "varchar(255)",
+      "type": "integer",
       "typeSchema": null,
-      "notNull": true,
+      "notNull": false,
       "dimensions": 0,
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "target_url",
+      "name": "target_url_id",
       "entityType": "columns",
       "schema": "public",
       "table": "links"
@@ -389,6 +389,23 @@
     {
       "nameExplicit": false,
       "columns": [
+        "target_url_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "urls",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "links_target_url_id_urls_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "links"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
         "url_id"
       ],
       "schemaTo": "public",
@@ -442,6 +459,18 @@
       "schema": "public",
       "table": "urls",
       "entityType": "pks"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "source_url_id",
+        "target_url_id"
+      ],
+      "nullsNotDistinct": false,
+      "name": "Links_source_target_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "links"
     },
     {
       "nameExplicit": false,
