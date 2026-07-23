@@ -1,8 +1,10 @@
+//TODO: ::VERY IMPORTANT:: REORGANISE ALL THE FILES IMMEDIATELY
+
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { contentTable, urlTable } from "../schema/schema.js";
-import parser from "../utils/parser.js";
+import parser from "../crawler/parser.js";
 import { eq } from "drizzle-orm";
-import type { ParsedPage, ParsedLinks } from "../utils/parser.js";
+import type { ParsedPage, ParsedLinks } from "../crawler/parser.js";
 
 export function urlService(db: NodePgDatabase) {
   async function getUrl() {
